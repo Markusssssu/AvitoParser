@@ -1,4 +1,4 @@
-version: '2'
+version: '3.8'
 
 services:
 
@@ -8,13 +8,11 @@ services:
     working_dir: /bot
     volumes:
       - .:/bot
-    environment:
-      - BOT_API_TOKEN=${BOT_API_TOKEN}
     depends_on:
       - mongodb
-    links:
-      - mongodb
-    command: python main.py
+    command: python run_bot.py
+    networks:
+      - avito-bot-network
 
   updates:
     restart: always
@@ -22,21 +20,25 @@ services:
     working_dir: /bot
     volumes:
       - .:/bot
-    environment:
-      - BOT_API_TOKEN=${BOT_API_TOKEN}
     depends_on:
       - mongodb
-    links:
-      - mongodb
     command: python updates.py
+    networks:
+      - avito-bot-network
 
   mongodb:
     restart: always
     image: mongo:latest
     environment:
-      - MONGO_DATA_DIR=/dockerdata/db
+      - MONGO_DATA_DIR=/data/db
     volumes:
-          - ./dockerdata/db:/data/db
+      - ./dockerdata/db:/data/db
     ports:
-      - 27017:27017
+      - "27017:27017"
     command: mongod
+    networks:
+      - avito-bot-network
+
+networks:
+  avito-bot-network:
+    driver: bridge

@@ -30,12 +30,12 @@ def save_url(uid, search_url, search_name):
     :param search_name: отслеживаемая ссылка, например: https://avito.ru/kazan/avto/vaz
     :return boolean: запись добавлена / не добавлена (ошибка бд)
     """
-    from parserr import parserr
+    from parserr.parserr import get_ads_list
     try:
         search_collection.update_one({'uid': uid}, {'$push': {'tracking_urls': {
             'url': search_url,
             'name': search_name,
-            'ads': parserr.get_ads_list(search_url)
+            'ads': get_ads_list(search_url)
         }}}, upsert=True)
         return True
     except:
