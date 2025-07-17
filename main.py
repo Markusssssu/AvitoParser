@@ -39,7 +39,13 @@ def waiting_url_step(message):
     search_url = message.text
     # На случай, если пользователь отравит такое сообщение: "https://avito.ru/kazan/avto/vaz бла бла"
     search_url = search_url.split(' ')[0]
-    search_url = search_url.lower()
+    # УБРАНО: search_url = search_url.lower()
+
+    # Нормализуем ссылку
+    normalized_url = utils.normalize_avito_url(search_url)
+    if normalized_url != search_url:
+        bot.send_message(message.chat.id, f'ℹ️ Ссылка была автоматически исправлена:\n<code>{normalized_url}</code>', parse_mode='HTML')
+    search_url = normalized_url
 
     if not utils.check_avito_url(search_url):
         msg = bot.send_message(message.chat.id, '❌ <b>Некорректная ссылка.</b>\n\nПроверьте правильность ссылки и попробуйте снова.', parse_mode='HTML')
