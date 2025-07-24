@@ -1,7 +1,5 @@
 from pymongo import MongoClient
 
-# client = MongoClient('mongodb://{}:{}@ds213759.mlab.com:13759/monogoosito'.format('bot', 'emilbotavito'))
-# client = MongoClient('mongodb://{}:{}@localhost:27017/monogoosito'.format('bot', 'bot'))
 client = MongoClient('mongodb', 27017)
 db = client['mongoosito']
 search_collection = db['search_collection']
@@ -29,6 +27,8 @@ def save_url(uid, search_url, search_name):
     :param search_url: название для поиска, например "Поиск машины для клиента"
     :param search_name: отслеживаемая ссылка, например: https://avito.ru/kazan/avto/vaz
     :return boolean: запись добавлена / не добавлена (ошибка бд)
+    
+    ВАЖНО: При добавлении отслеживания объявления не отправляются пользователю, а просто сохраняются как уже просмотренные.
     """
     from parserr.parserr import get_ads_list
     try:
@@ -60,7 +60,6 @@ def is_link_already_tracking_by_user(uid, search_url):
 
 def get_search_collection_entries():
     return list(search_collection.find({}))
-
 
 def get_users_tracking_urls_list(uid):
     """

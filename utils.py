@@ -38,7 +38,6 @@ def normalize_avito_url(avito_url):
     path = parsed.path
     query = parsed.query
 
-    # Исправляем netloc на мобильную версию, если нужно (без изменения регистра)
     if netloc.startswith('www.'):
         netloc = netloc[4:]
     if netloc == 'avito.ru':
@@ -46,10 +45,8 @@ def normalize_avito_url(avito_url):
     elif netloc == 'm.avito.ru':
         pass
     else:
-        # Если вообще не avito, не трогаем
         return avito_url
 
-    # Оставляем все параметры, кроме явных трекеров
     qs = parse_qsl(query, keep_blank_values=True)
     filtered_qs = []
     for k, v in qs:
@@ -57,7 +54,6 @@ def normalize_avito_url(avito_url):
             continue
         filtered_qs.append((k, v))
 
-    # Удаляем лишние слэши в конце
     path = re.sub(r'/+$', '', path)
 
     new_url = urlunparse((

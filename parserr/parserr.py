@@ -226,8 +226,5 @@ def get_ads_list(avito_search_url, debug=False):
 
 
 def get_new_ads(new, old):
-    _ = []
-    for ad in new:
-        if ad not in old:
-            _.append(ad)
-    return _
+    old_ids = set(ad['id'] for ad in old)
+    return [ad for ad in new if ad['id'] not in old_ids]

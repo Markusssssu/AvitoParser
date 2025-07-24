@@ -1,54 +1,32 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+from main import bot
+import time
+import traceback
+import threading
+from updates import send_updates
+from config import NOTIFICATION_CONFIG
 
-"""
-Скрипт для запуска Telegram бота Avito Tracker
-"""
 
-import sys
-import os
-from config import BOT_TOKEN
+def updates_worker():
+    while True:
+        try:
+            send_updates()
+        except Exception as e:
+            print(f"🔴 Ошибка в updates_worker: {e}")
+            traceback.print_exc()
+        time.sleep(NOTIFICATION_CONFIG['check_interval'])
 
-def check_config():
-    """Проверяем конфигурацию бота"""
-    print("🔍 Проверка конфигурации...")
-    
-    if not BOT_TOKEN:
-        print("❌ Ошибка: Токен бота не найден!")
-        return False
-    
-    if not BOT_TOKEN.startswith("7921913612:"):
-        print("❌ Ошибка: Неверный формат токена!")
-        return False
-    
-    print("✅ Токен бота найден и корректный")
-    return True
+def run_bot():
+    # Запускаем обновления в отдельном потоке
+    threading.Thread(target=updates_worker, daemon=True).start()
+    while True:
+        try:
+            print("🟢 Бот Джанго запущен | " + time.strftime("%Y-%m-%d %H:%M:%S"))
+            bot.infinity_polling()
+        except Exception as e:
+            print(f"🔴 Ошибка: {e}")
+            traceback.print_exc()
+            print("🔄 Перезапуск через 5 секунд...")
+            time.sleep(5)
 
-def main():
-    """Основная функция запуска"""
-    print("🤖 Запуск Telegram бота Avito Tracker")
-    print("=" * 50)
-    
-    # Проверяем конфигурацию
-    if not check_config():
-        sys.exit(1)
-    
-    try:
-        # Импортируем и запускаем бота
-        from main import bot
-        print("✅ Бот успешно инициализирован")
-        print("🚀 Запускаем бота...")
-        print("📱 Найдите бота в Telegram и отправьте /start")
-        print("⏹️  Для остановки нажмите Ctrl+C")
-        print("-" * 50)
-        
-        bot.polling(none_stop=True, timeout=60)
-        
-    except KeyboardInterrupt:
-        print("\n⏹️  Бот остановлен пользователем")
-    except Exception as e:
-        print(f"❌ Ошибка при запуске бота: {e}")
-        sys.exit(1)
-
-if __name__ == "__main__":
-    main() 
+if __name__ == '__main__':
+    run_bot()
